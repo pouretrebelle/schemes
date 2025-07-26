@@ -1,0 +1,16 @@
+{
+  "semi": false,
+  "singleQuote": true,
+  "arrowParens": "always",
+  "trailingComma": "es5",
+  "importOrder": [
+    "^lib/(.*)$",
+    "^components/(.*)$",
+    "^styles/(.*)$",
+    "^\\.\\./",
+    "^.//(.*)$",
+    "^[./]"
+  ],
+  "importOrderSeparation": true,
+  "importOrderSortSpecifiers": true
+}
