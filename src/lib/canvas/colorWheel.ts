@@ -1,43 +1,46 @@
 import Color from "colorjs.io"
 import { map } from "lib/format/numbers"
 
-const BANDS = 4
-const STEPS = 8
+const STEPS = [6, 8, 11]
 const SEGMENTS = 30
 
 const outside = {
   lightness: [0.3, 0.85],
-  chroma: [0.1, 0.2],
+  chroma: [0.2, 0.2],
 }
 const inside = {
-  lightness: [0.9, 1],
+  lightness: [0.6, 1],
   chroma: [0.05, 0],
 }
 
 export const drawColorWheel = (c: CanvasRenderingContext2D, width: number, height: number) => {
   c.strokeStyle = "white"
+  const bands = STEPS.length
+  const totalSteps = STEPS.reduce((sum, s) => sum + s, 0)
+  let drawnSteps = 0
 
-  for (let band = 0; band < BANDS; band++) {
-    const bandLT = map(band, 0, BANDS - 1, 0, 1) ** 0.8
+  for (let band = 0; band < bands; band++) {
+    const bandLT = map(band, 0, bands - 1, 0, 1) ** 0.8
     const bandL = [
       map(bandLT, 0, 1, outside.lightness[0], inside.lightness[0]),
       map(bandLT, 0, 1, outside.lightness[1], inside.lightness[1]),
     ]
-    const bandCT = map(band, 0, BANDS - 1, 0, 1) ** 0.8
+    const bandCT = map(band, 0, bands - 1, 0, 1) ** 0.8
     const bandC = [
       map(bandCT, 0, 1, outside.chroma[0], inside.chroma[0]),
       map(bandCT, 0, 1, outside.chroma[1], inside.chroma[1]),
     ]
 
-    for (let step = 0; step < STEPS; step++) {
+    const bandSteps = STEPS[band]
+    for (let step = 0; step < bandSteps; step++) {
 
-      const stepLT = map(step, 0, STEPS - 1, 0, 1) ** 0.8
+      const stepLT = map(step, 0, bandSteps - 1, 0, 1) ** map(band, 0, bands-1, 1.2, 0.5)
       const lightness = map(stepLT, 0, 1, bandL[0], bandL[1])
 
-      const stepCT = map(step, 0, STEPS - 1, 0, 1)
+      const stepCT = map(step, 0, bandSteps - 1, 0, 1)
       const chroma = map(stepCT, 0, 1, bandC[0], bandC[1])
 
-      const radius = map(band * STEPS + step, 0, BANDS * STEPS, width / 2, 0)
+      const radius = map(drawnSteps, 0, totalSteps, width / 2, 0)
 
       for (let segment = 0; segment < SEGMENTS; segment++) {
         const hue = (segment * 360) / SEGMENTS
@@ -54,6 +57,7 @@ export const drawColorWheel = (c: CanvasRenderingContext2D, width: number, heigh
         c.fill()
         c.stroke()
       }
+      drawnSteps++
     }
   }
 }
