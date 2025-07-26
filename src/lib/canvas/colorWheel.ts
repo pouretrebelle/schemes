@@ -1,16 +1,17 @@
 import Color from "colorjs.io"
 import { map } from "lib/format/numbers"
 
-const STEPS = [6, 8, 12]
-const SEGMENTS = 30
+const STEPS = [4, 5, 8, 12]
+const SEGMENTS = 24
+const ROTATION = - 10 / SEGMENTS * (Math.PI * 2)
 
 const outside = {
-  lightness: [0.1, 0.85],
-  chroma: [0.3, 0.3],
+  lightness: [0.1, 0.8],
+  chroma: [0.4, 0.3],
 }
 const inside = {
   lightness: [0.5, 1],
-  chroma: [0.05, 0],
+  chroma: [0.03, 0],
 }
 
 export const drawColorWheel = (c: CanvasRenderingContext2D, width: number, height: number) => {
@@ -20,12 +21,12 @@ export const drawColorWheel = (c: CanvasRenderingContext2D, width: number, heigh
   let drawnSteps = 0
 
   for (let band = 0; band < bands; band++) {
-    const bandLT = map(band+0.5, 0, bands, 0, 1) ** 0.5
+    const bandLT = map(band+0.5, 0, bands, 0, 1)
     const bandL = [
       map(bandLT, 0, 1, outside.lightness[0], inside.lightness[0]),
       map(bandLT, 0, 1, outside.lightness[1], inside.lightness[1]),
     ]
-    const bandCT = map(band+0.5, 0, bands, 0, 1) ** 0.5
+    const bandCT = map(band+0.5, 0, bands, 0, 1) ** 0.6
     const bandC = [
       map(bandCT, 0, 1, outside.chroma[0], inside.chroma[0]),
       map(bandCT, 0, 1, outside.chroma[1], inside.chroma[1]),
@@ -34,7 +35,7 @@ export const drawColorWheel = (c: CanvasRenderingContext2D, width: number, heigh
     const bandSteps = STEPS[band]
     for (let step = 0; step < bandSteps; step++) {
 
-      const stepLT = map(step + 0.5, 0, bandSteps, 0, 1) ** map(band, 0, bands-1, 1.2, 0.3)
+      const stepLT = map(step + 0.5, 0, bandSteps, 0, 1) ** map(band, 0, bands-1, 0.8, 0.3)
       const lightness = map(stepLT, 0, 1, bandL[0], bandL[1])
 
       const stepCT = map(step + 0.5, 0, bandSteps, 0, 1)
@@ -47,8 +48,8 @@ export const drawColorWheel = (c: CanvasRenderingContext2D, width: number, heigh
         const color = new Color("oklch", [lightness, chroma, hue])
         c.fillStyle = color.to("p3").toString()
 
-        const startAngle = map(segment - 0.5, 0, SEGMENTS, 0, 2 * Math.PI)
-        const endAngle = map(segment + 0.5, 0, SEGMENTS, 0, 2 * Math.PI)
+        const startAngle = map(segment - 0.5, 0, SEGMENTS, 0, 2 * Math.PI) + ROTATION
+        const endAngle = map(segment + 0.5, 0, SEGMENTS, 0, 2 * Math.PI) + ROTATION
 
         c.beginPath()
         c.moveTo(width / 2, height / 2)
