@@ -1,0 +1,8 @@
+.canvas {
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  user-select: none;
+  touch-action: none;
+  max-width: 100%;
+}
