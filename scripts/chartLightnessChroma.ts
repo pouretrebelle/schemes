@@ -36,6 +36,6 @@ const matches = ([...svg.matchAll(/path d="M(.+?)"/g)]).map(m => {
   const [x, y] = m.split(' ')
 
   return [formatVal(x, 0.01), formatVal(y, 0.004)]
-})
+}).reverse()
 
 return matches
