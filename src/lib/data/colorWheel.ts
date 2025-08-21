@@ -1,5 +1,5 @@
 import Color from "colorjs.io"
-import { map } from "lib/format/numbers"
+import { map, wrap } from "lib/format/numbers"
 
 // lightness and chroma steps
 export const steps: [Lightness: number, Chroma: number][] = [
@@ -57,12 +57,13 @@ export const swatches = steps.map(([lightness, chroma], stepI) => {
   return segments.map((hue, segmentI) => {
     const color = new Color("oklch", [lightness, chroma, hue])
 
-    const startAngle = map(segmentI - 0.5, 0, segmentsCount, 0, 2 * Math.PI) - Math.PI / 2
-    const endAngle = map(segmentI + 0.5, 0, segmentsCount, 0, 2 * Math.PI) - Math.PI / 2
+    const startAngle = wrap(map(segmentI - 0.5, 0, segmentsCount, 0, 2 * Math.PI) - Math.PI / 2, 0, 2 * Math.PI)
+    const endAngle = wrap(map(segmentI + 0.5, 0, segmentsCount, 0, 2 * Math.PI) - Math.PI / 2, 0, 2 * Math.PI)
     const startRadius = map(stepI, 0, stepsCount + 1, 1, 0)
     const endRadius = map(stepI + 1, 0, stepsCount + 1, 1, 0)
 
     return {
+      index: stepI * segmentsCount + segmentI,
       lightness,
       chroma,
       hue,
