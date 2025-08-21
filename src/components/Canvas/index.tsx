@@ -1,18 +1,28 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react';
 
-import { drawColorWheel, drawSwatchShape } from 'lib/canvas/colorWheel'
-import { swatches } from 'lib/data/colorWheel'
-import { clamp, map, wrap } from 'lib/format/numbers'
 
-import styles from './Canvas.module.css'
+
+import { drawColorWheel, drawSwatchShape } from 'lib/canvas/colorWheel';
+import { swatches } from 'lib/data/colorWheel';
+import { clamp, map, wrap } from 'lib/format/numbers';
+
+
+
+import styles from './Canvas.module.css';
+
 
 const PIXEL_RATIO = 2
 const WIDTH = 800
 const HEIGHT = 800
 
+type Highlight = {
+  index: number
+  level: 1 | 2 | 3
+}
+
 export const Canvas: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const [highlights, setHighlights] = useState<number[]>([])
+  const [highlights, setHighlights] = useState<Highlight[]>([])
 
   useEffect(() => {
     const c = canvasRef.current?.getContext('2d', {
@@ -38,12 +48,12 @@ export const Canvas: React.FC = () => {
 
     // draw highlights
     c.save()
-    highlights.forEach((index) => {
+    highlights.forEach(({ index, level }) => {
       const swatch = swatches[index]
       if (!swatch) return
 
       c.strokeStyle = 'black'
-      c.lineWidth = 2
+      c.lineWidth = level
       drawSwatchShape(c, swatch, WIDTH, HEIGHT)
       c.stroke()
     })
@@ -53,7 +63,7 @@ export const Canvas: React.FC = () => {
     if (highlights.length > 0) {
       let runningX = 0
       let runningY = 0
-      highlights.forEach((index) => {
+      highlights.forEach(({ index, level }) => {
         const swatch = swatches[index]
         if (!swatch) return
 
@@ -64,8 +74,12 @@ export const Canvas: React.FC = () => {
         }
         let midRadius = (swatch.startRadius + swatch.endRadius) / 2
 
-        runningX += Math.cos(midAngle) * midRadius
-        runningY += Math.sin(midAngle) * midRadius
+        let multiplier = 0.1
+        if (level === 2) multiplier = 0.3
+        if (level === 3) multiplier = 0.6
+
+        runningX += Math.cos(midAngle) * midRadius * multiplier
+        runningY += Math.sin(midAngle) * midRadius * multiplier
       })
 
       const border = 10
@@ -122,10 +136,27 @@ export const Canvas: React.FC = () => {
     })
 
     if (swatch) {
-      if (highlights.includes(swatch.index)) {
-        setHighlights(highlights.filter((i) => i !== swatch.index))
-      } else {
-        setHighlights([swatch.index, ...highlights])
+      const highlight = highlights.find((h) => h.index === swatch.index)
+      // turn off when at max level
+      if (highlight?.level === 3) {
+        setHighlights(highlights.filter((h) => h.index !== swatch.index))
+      }
+      // increment level
+      else if (highlight) {
+        setHighlights(
+          highlights.map((h) =>
+            h.index === swatch.index
+              ? { ...h, level: ((h.level + 1) as 1 | 2 | 3) }
+              : h
+          )
+        )
+      }
+      // add new highlight
+      else {
+        setHighlights([
+          ...highlights,
+          { index: swatch.index, level: 1 },
+        ])
       }
     }
   }
