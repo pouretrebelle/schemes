@@ -89,18 +89,20 @@ export const Canvas: React.FC = () => {
         runningY += y * multiplier
       })
 
-      const border = 10
+      const border = 6
+      const size = 5
       c.save()
       c.lineWidth = 3
       c.strokeStyle = 'red'
-      c.beginPath()
-      c.arc(
+      c.translate(
         clamp(map(runningX, -1, 1, 0, WIDTH), border, WIDTH - border),
         clamp(map(runningY, -1, 1, 0, HEIGHT), border, HEIGHT - border),
-        5,
-        0,
-        2 * Math.PI
       )
+      c.beginPath()
+      c.moveTo(-size, -size)
+      c.lineTo(size, size)
+      c.moveTo(size, -size)
+      c.lineTo(-size, size)
       c.closePath()
       c.stroke()
       c.restore()
